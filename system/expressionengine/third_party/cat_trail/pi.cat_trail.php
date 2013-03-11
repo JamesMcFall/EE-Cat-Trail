@@ -2,14 +2,14 @@
 
 $plugin_info = array(
     'pi_name'           => 'Cat Trail',
-    'pi_version'        => '0.1',
+    'pi_version'        => '0.2',
     'pi_author'         => 'James McFall',
     'pi_author_url'     => 'http://mcfall.geek.nz/',
     'pi_description'    => 'Maintaining nice category URLs in EE can be a pain
                             when there are more than one level of category. This
-                            plugin makes it easy to assemble urls for categories 
-                            and channel entries that respect the category 
-                            heirarchy.',
+                            plugin makes it easy to assemble urls and loop 
+                            through the parent categories for a supplied 
+                            category ID.',
     'pi_usage'          => null
 );
 
@@ -34,9 +34,10 @@ class Cat_trail {
      */
     public function get_cat_url() {
        
-        # Either a category ID or an entry ID have to be supplied
+        # The cat_id parameter is required for this to work
         $cat_id = $this->EE->TMPL->fetch_param('cat_id');
         
+        # Get the ordered category trail
         $category_structure = array_reverse($this->_assemble_category_structure($cat_id));
         
         # Append each category to the return string
@@ -49,8 +50,48 @@ class Cat_trail {
         return rtrim($href, "/");
     }
 
-    public function get_entry_url() {
-        throw new Exception("get_entry_url not yet implemented.");
+    /**
+     * Provide an EE template loop for all of the categories under the supplied 
+     * category.
+     * 
+     * @return <string> The repeated markup blocks between the plugin tags with
+     *                  the EE category template vars replaced.
+     */
+    public function get_cat_structure() {
+        
+        # Save everything between the two tags so we can output it for each category
+        $markup_template = $this->EE->TMPL->tagdata;
+        $output_markup = "";
+        $count = 0;
+        
+        # The cat_id parameter is required for this to work
+        $cat_id = $this->EE->TMPL->fetch_param('cat_id');
+        
+        # Get the ordered category trail
+        $category_structure = array_reverse($this->_assemble_category_structure($cat_id));
+        
+        # Foreach category, take a copy of the markup template and replace all of
+        # the template tags. Then append to the output string.
+        foreach ($category_structure as $category) {
+            
+            $count ++;
+            
+            # Replace all the same tags used in the EE categories tag
+            $tmp_output = $markup_template;
+            $tmp_output = str_replace('{category_id}',          $category->cat_id, $tmp_output);
+            $tmp_output = str_replace('{category_description}', $category->cat_description, $tmp_output);
+            $tmp_output = str_replace('{parent_id}',            $category->parent_id, $tmp_output);
+            $tmp_output = str_replace('{category_image}',       $category->cat_image, $tmp_output);
+            $tmp_output = str_replace('{category_name}',        $category->cat_name, $tmp_output);
+            $tmp_output = str_replace('{category_url_title}',   $category->cat_url_title, $tmp_output);
+            $tmp_output = str_replace('{count}',                $count."", $tmp_output);
+            $tmp_output = str_replace('{total_results}',        count($category_structure), $tmp_output);
+            
+            # Append this to the output markup
+            $output_markup .= $tmp_output;
+        }
+        
+        return $output_markup;
     }
     
     /**
