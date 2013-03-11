@@ -1,5 +1,5 @@
-Cat-Trail
-============
+Cat-Trail V0.2
+=============
 
 An ExpressionEngine plugin making it easy to build URLs and breadcrumbs for categories and channel entries on sites that have multiple levels of categories.
 
@@ -31,9 +31,18 @@ But note, if you're using another plugin like child_categories, ExpressionEngine
 {/exp:child_categories}
 ```
 
+### Looping through the parents of the supplied category
+Once you are a number of categories in, producing breadcrumbs can be a bit of a pain. Using the __get_cat_structure__ tag pair, you can get the category parents for the supplied category and output nice easy breadcrumbs.
+```html
+<!-- Output breadcrumbs for the current category -->
+<ul class="breadCrumb">
+    {exp:cat_trail:get_cat_structure cat_id="{last_segment_category_id}" parse="inward"} <!-- Need this so it runs first -->
+        <!-- To build the proper full category URL we can call the get_cat_url method again -->
+        <li {if {last_segment_category_id} == {category_id}}class="current"{/if}>
+            <a href="/products/{exp:cat_trail:get_cat_url cat_id='{category_id}'}">{category_name}</a>
+        </li>
+    {/exp:cat_trail:get_cat_structure}
+</ul>
+```
 
-### Getting the URL for a channel entry
-_@todo_
-
-### More To Come
-I'm intending to build the functionality to use a tag pair to return full categories for a supplied category or channel entry. The main use of this for myself would be building breadcrumbs on large product/category websites.
+### More To Come!!!
