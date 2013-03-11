@@ -18,6 +18,20 @@ Would result in:
 <a href="/categories/category-one/category-two/my-category">My Category</a>
 ```
 
+But note, if you're using another plugin like child_categories, ExpressionEngine parses nested plugins from inward outwards, so you need to specify the outer plugin to parse first (with parse="inward") so that the category ID is available and processed for the plugin to use.
+
+```html
+<!-- Output a link to each child category -->
+{exp:child_categories parent="{last_segment_category_id}" show_empty="yes" parse="inward"} <!-- See? -->
+    {child_category_start}
+        <a href="{exp:cat_trail:get_cat_url cat_id='{child_category_id}'}" class="browseAll">
+            {child_category_name}.
+        </a>
+    {child_category_end}
+{/exp:child_categories}
+```
+
+
 ### Getting the URL for a channel entry
 _@todo_
 
