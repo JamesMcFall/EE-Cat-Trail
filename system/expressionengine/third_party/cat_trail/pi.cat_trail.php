@@ -36,16 +36,17 @@ class Cat_trail {
        
         # Either a category ID or an entry ID have to be supplied
         $cat_id = $this->EE->TMPL->fetch_param('cat_id');
-
+        
         $category_structure = array_reverse($this->_assemble_category_structure($cat_id));
         
         # Append each category to the return string
         $href = "";
         foreach ($category_structure as $category) {
-            $href .= "/" . $category->cat_url_title;
+            $href .= $category->cat_url_title . "/";
         }
-
-        return $href;
+        
+        # Strip the last slash off
+        return rtrim($href, "/");
     }
 
     public function get_entry_url() {
@@ -87,4 +88,3 @@ class Cat_trail {
 }
 
 ?>
-
