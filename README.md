@@ -43,6 +43,7 @@ Once you are a number of categories in, producing breadcrumbs can be a bit of a 
 
 * __cat_id__: The cat_id of category you want to get the lineage for.
 * __cat_url__: The category_url_title of the category you want to get the lineage for.
+
 ```html
 <!-- Output breadcrumbs for the current category -->
 <ul class="breadCrumb">
