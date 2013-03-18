@@ -2,14 +2,14 @@
 
 $plugin_info = array(
     'pi_name'           => 'Cat Trail',
-    'pi_version'        => '0.2',
+    'pi_version'        => '0.3',
     'pi_author'         => 'James McFall',
     'pi_author_url'     => 'http://mcfall.geek.nz/',
     'pi_description'    => 'Maintaining nice category URLs in EE can be a pain
                             when there are more than one level of category. This
                             plugin makes it easy to assemble urls and loop 
                             through the parent categories for a supplied 
-                            category ID.',
+                            category ID or category URL title.',
     'pi_usage'          => null
 );
 
@@ -25,7 +25,7 @@ class Cat_trail {
     /**
      * Return the url string for this category or channel entry.
      * 
-     * Pass in a channel entry id or category id and get back a proper 
+     * Pass in a category id or category url title and get back a proper 
      * hierarchical url string e.g. for a product you'd get a url like:
      * products/cat_1/cat_2/cat_3/product_url_title (excluding the "products"
      * template group at the front).
@@ -34,8 +34,14 @@ class Cat_trail {
      */
     public function get_cat_url() {
        
-        # The cat_id parameter is required for this to work
-        $cat_id = $this->EE->TMPL->fetch_param('cat_id');
+        # The cat_id or cat_url parameter can be used here.
+        $cat_id  = $this->EE->TMPL->fetch_param('cat_id');
+        $cat_url = $this->EE->TMPL->fetch_param('cat_url');
+                
+        # If cat_id isn't supplied (but cat_url is), look up the id using that.
+        if (!$cat_id && $cat_url) {
+            $cat_id = $this->_get_category_id_from_url_title($cat_url);
+        }
         
         # Get the ordered category trail
         $category_structure = array_reverse($this->_assemble_category_structure($cat_id));
@@ -64,12 +70,18 @@ class Cat_trail {
         $output_markup = "";
         $count = 0;
         
-        # The cat_id parameter is required for this to work
-        $cat_id = $this->EE->TMPL->fetch_param('cat_id');
+        # The cat_id or cat_url parameter can be used here.
+        $cat_id  = $this->EE->TMPL->fetch_param('cat_id');
+        $cat_url = $this->EE->TMPL->fetch_param('cat_url');
+                
+        # If cat_id isn't supplied (but cat_url is), look up the id using that.
+        if (!$cat_id && $cat_url) {
+            $cat_id = $this->_get_category_id_from_url_title($cat_url);
+        }
         
         # Get the ordered category trail
         $category_structure = array_reverse($this->_assemble_category_structure($cat_id));
-        
+                
         # Foreach category, take a copy of the markup template and replace all of
         # the template tags. Then append to the output string.
         foreach ($category_structure as $category) {
@@ -95,7 +107,7 @@ class Cat_trail {
     }
     
     /**
-     * Assemble the category structure from bottom to top for this category ID
+     * Assemble the category structure from bottom to top for this category ID.
      * 
      * @param <int> $cat_id
      * @param <array> $categories - passed by reference so we can recursively 
@@ -125,6 +137,29 @@ class Cat_trail {
         }
 
         return $categories;
+    }
+    
+    /**
+     * Get the category id using the URL title.
+     * 
+     * @param <string> $url_title
+     * @return <int|boolean> $cat_id (either the id or false).
+     */
+    protected function _get_category_id_from_url_title($url_title) {
+        # Get this category from the DB
+        $this->EE->db->select("*")
+                ->from("exp_categories")
+                ->where("cat_url_title", $url_title)
+                ->limit(1);
+
+        $result = $this->EE->db->get();
+        
+        if ($result->num_rows()) {
+            $row = $result->row();
+            return $row->cat_id;
+        }
+            
+        return false;
     }
 }
 

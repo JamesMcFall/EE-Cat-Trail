@@ -1,14 +1,19 @@
-Cat-Trail V0.2
-=============
+Cat-Trail V0.3
+==============
 
-An ExpressionEngine plugin making it easy to build URLs and breadcrumbs for categories and channel entries on sites that have multiple levels of categories.
+An ExpressionEngine plugin making it easy to build URLs and breadcrumbs for categories on sites that have multiple levels of categories.
 
 ## Installation
 Unzip or clone the plugin directory down. From there installation is as per any other EE plugin. Copy the plugin dir (cat_trail) into __system/expressionengine/third_party/__.
 
 ## Usage
 ### Getting the URL for a category
-Getting the URL for a category is very simple using Cat_trail. In the below example you can see I'm building the href value for a given category. You need to supply the __cat_id__ parameter.
+Getting the URL for a category is very simple using Cat_trail. In the below example you can see I'm building the href value for a given category. You need to supply the __cat_id__ parameter or the __cat_url__ parameter.
+
+#### Parameters for inline get_cat_url method.
+
+* __cat_id__: The cat_id of category you want to build the link for.
+* __cat_url__: The category_url_title of the category you want to build the link for.
 
 ```html
 <a href="/categories/{exp:cat_trail:get_cat_url cat_id='{cat_id}'}">{cat_name}</a>
@@ -33,6 +38,11 @@ But note, if you're using another plugin like child_categories, ExpressionEngine
 
 ### Looping through the parents of the supplied category
 Once you are a number of categories in, producing breadcrumbs can be a bit of a pain. Using the __get_cat_structure__ tag pair, you can get the category parents for the supplied category and output nice easy breadcrumbs.
+
+#### Parameters for the get_cat_structure tag pair.
+
+* __cat_id__: The cat_id of category you want to get the lineage for.
+* __cat_url__: The category_url_title of the category you want to get the lineage for.
 ```html
 <!-- Output breadcrumbs for the current category -->
 <ul class="breadCrumb">
